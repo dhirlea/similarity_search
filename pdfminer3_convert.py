@@ -8,7 +8,7 @@ import io
 
 resource_manager = PDFResourceManager()
 fake_file_handle = io.StringIO()
-converter = TextConverter(resource_manager, fake_file_handle, laparams=LAParams())
+converter = TextConverter(resource_manager, fake_file_handle, laparams=LAParams(detect_vertical=True))
 page_interpreter = PDFPageInterpreter(resource_manager, converter)
 
 with open('Teliasonera_2012.pdf', 'rb') as fh:
