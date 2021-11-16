@@ -17,7 +17,7 @@ def main():
     for sent_no, sentence in parsed_doc.items():
         cleaned_sentence = parsed_doc[sent_no].replace("\n","").replace("\f","").replace("\t","").replace("•","").strip()
         if re.match("[a-zA-Z0-9]*", cleaned_sentence):
-            cleaned_doc[i] = cleaned_sentence
+            cleaned_doc[i] = ' '.join([word for word in cleaned_sentence.split() if len(word)>0])
             i +=1 
 
     with open('parsed_report.json','w',encoding='utf-8') as f:
