@@ -1,5 +1,6 @@
 from summarizer import Summarizer
 import torch
+import spacy
 
 def main():
     if torch.cuda.is_available():
@@ -29,13 +30,32 @@ def main():
         Walter Chrysler had set out to build the tallest building in the world, a competition at that time with another Manhattan skyscraper under construction at 40 Wall Street at the south end of Manhattan. He kept secret the plans for the spire that would grace the top of the building, building it inside the structure and out of view of the public until 40 Wall Street was complete.\
         Once the competitor could rise no higher, the spire of the Chrysler building was raised into view, giving it the title.\
     "
+
+    nlp = spacy.load('en_core_web_sm')
+
+    doc = nlp(body)
+    sentence_list = []
+    for sentence in doc.sents:
+        sentence_list.append(sentence.text.strip())
+
+    # Instantiate model
     model = Summarizer()
     model.model.model.to(device) # automatically defaults to GPU, but good to check
     print(f' Using device {model.model.model.device.type} \n')
+
+    #Summarize text
     summary = model(body, ratio=0.2)
-    print(summary)
+    print(summary, '\n')
     summary_embeddings = torch.tensor(model.run_embeddings(body, ratio=0.2))
-    print(summary_embeddings.shape) # no_sentences x 1024
+    print(summary_embeddings.shape, '\n') # no_sentences x 1024
+
+
+    # Encode individual sentences
+
+    sentence_embeddings = []
+    for sentence in sentence_list:
+        sentence_embeddings.append(model(sentence))
+
 
 
 if __name__ == '__main__':
