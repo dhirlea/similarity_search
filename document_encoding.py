@@ -4,6 +4,8 @@ import spacy
 import random
 import numpy as np
 from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
 
 def main():
     # Set random seeds
@@ -53,7 +55,7 @@ def main():
 
     #Summarize text
     summary = model(body, ratio=0.2)
-    print(summary, '\n')
+    print('Summary of input text is \n',summary, '\n')
     summary_embeddings = torch.tensor(model.run_embeddings(body, ratio=0.2))
     # print(f' Shape of extractive summary embeddings is {summary_embeddings.shape} \n') # no_sentences x 1024
 
@@ -89,6 +91,25 @@ def main():
     
     print('The sentences closest to the cluster centroids are \n')
     print(sentence_centroids)
+
+    two_dim = PCA(random_state=0, n_components=2).fit_transform(sentence_embeddings_array)
+
+
+    cluster1 = []
+    cluster2 = []
+    cluster3 = []
+    for i in range(len(two_dim)):
+        if clustering.labels_[i] == 0:
+            cluster1.append(two_dim[i])
+        elif clustering.labels_[i] == 1:
+            cluster2.append(two_dim[i])
+        else:
+            cluster3.append(two_dim[i])
+
+    plt.scatter(np.array(cluster1)[:,0], np.array(cluster1)[:,1], c='r')
+    plt.scatter(np.array(cluster2)[:,0], np.array(cluster2)[:,1], c='g')
+    plt.scatter(np.array(cluster3)[:,0], np.array(cluster3)[:,1], c='b')
+    plt.show()
 
 if __name__ == '__main__':
     main()
