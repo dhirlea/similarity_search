@@ -1,8 +1,16 @@
 from summarizer import Summarizer
 import torch
 import spacy
+import random
+import numpy as np
+from sklearn.cluster import KMeans
 
 def main():
+    # Set random seeds
+    torch.manual_seed(0)
+    random.seed(0)
+    np.random.seed(0)
+
     if torch.cuda.is_available():
         device = torch.device("cuda:0")
     else:
@@ -47,16 +55,40 @@ def main():
     summary = model(body, ratio=0.2)
     print(summary, '\n')
     summary_embeddings = torch.tensor(model.run_embeddings(body, ratio=0.2))
-    print(summary_embeddings.shape, '\n') # no_sentences x 1024
+    # print(f' Shape of extractive summary embeddings is {summary_embeddings.shape} \n') # no_sentences x 1024
 
 
     # Encode individual sentences
 
     sentence_embeddings = []
     for sentence in sentence_list:
-        sentence_embeddings.append(model(sentence))
+        sentence_embeddings.extend(model.run_embeddings(sentence, num_sentences=1, min_length=5)) # min length defaults to 40 chars to summarize text, but sentences can be shorter
+    
+    sentence_embeddings_array  = np.array(sentence_embeddings)
 
+    clustering = KMeans(n_clusters=3, random_state=0).fit(sentence_embeddings_array)
 
+    cluster_dict = {}
+    for sentence, label in zip(sentence_list, clustering.labels_):
+        if label not in cluster_dict.keys():
+            cluster_dict[label] = [sentence]
+        else:
+            cluster_dict[label].append(sentence)
+    
+    print(f'The text has the following clusters \n {cluster_dict} \n')
+
+    sentence_centroids = {}    
+    centroids_dict = {i:np.infty for i in range(len(clustering.cluster_centers_))}
+
+    for centroid in clustering.cluster_centers_:
+        for i in range(len(sentence_embeddings_array)):
+            index = clustering.cluster_centers_.tolist().index(list(centroid))
+            if np.sqrt(np.sum((sentence_embeddings_array[i] - np.array(centroid))**2)) < centroids_dict[index]:
+                centroids_dict[index] = np.sqrt(np.sum((sentence_embeddings_array[i] - np.array(centroid))**2))
+                sentence_centroids[index] = sentence_list[i]
+    
+    print('The sentences closest to the cluster centroids are \n')
+    print(sentence_centroids)
 
 if __name__ == '__main__':
     main()
