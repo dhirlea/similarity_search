@@ -109,7 +109,9 @@ def main():
     plt.scatter(np.array(cluster1)[:,0], np.array(cluster1)[:,1], c='r')
     plt.scatter(np.array(cluster2)[:,0], np.array(cluster2)[:,1], c='g')
     plt.scatter(np.array(cluster3)[:,0], np.array(cluster3)[:,1], c='b')
-    plt.show()
+    plt.xlabel('1st Principal Component')
+    plt.ylabel('2nd Principal Component')
+    plt.savefig('sentence_clusters.png')
 
 if __name__ == '__main__':
     main()
