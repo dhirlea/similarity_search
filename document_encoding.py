@@ -6,6 +6,7 @@ import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import cm
 
 def main():
     # Set random seeds
@@ -68,7 +69,9 @@ def main():
     
     sentence_embeddings_array  = np.array(sentence_embeddings)
 
-    clustering = KMeans(n_clusters=3, random_state=0).fit(sentence_embeddings_array)
+    number_of_clusters = 2
+
+    clustering = KMeans(n_clusters=number_of_clusters, random_state=0).fit(sentence_embeddings_array)
 
     cluster_dict = {}
     for sentence, label in zip(sentence_list, clustering.labels_):
@@ -95,22 +98,21 @@ def main():
     two_dim = PCA(random_state=0, n_components=2).fit_transform(sentence_embeddings_array)
     centroids_two_dim = PCA(random_state=0, n_components=2).fit_transform(clustering.cluster_centers_)
 
-
-    cluster1 = []
-    cluster2 = []
-    cluster3 = []
+    PC_dict ={} # keys are cluster labels (0,1,2,etc), values are PC values
     for i in range(len(two_dim)):
-        if clustering.labels_[i] == 0:
-            cluster1.append(two_dim[i])
-        elif clustering.labels_[i] == 1:
-            cluster2.append(two_dim[i])
+        if clustering.labels_[i] not in PC_dict.keys():
+            PC_dict[clustering.labels_[i]] = [two_dim[i]]
         else:
-            cluster3.append(two_dim[i])
+            PC_dict[clustering.labels_[i]].append(two_dim[i])
+    
+    color = iter(cm.rainbow(np.linspace(0, 1, len(PC_dict)+1)))
 
-    plt.scatter(np.array(cluster1)[:,0], np.array(cluster1)[:,1], c='c')
-    plt.scatter(np.array(cluster2)[:,0], np.array(cluster2)[:,1], c='g')
-    plt.scatter(np.array(cluster3)[:,0], np.array(cluster3)[:,1], c='b')
-    plt.scatter(np.array(centroids_two_dim)[:,0],np.array(centroids_two_dim[:,1]), c='r')
+    for i in range(len(PC_dict)):
+        c = next(color)
+        plt.scatter(np.array(PC_dict[i])[:,0], np.array(PC_dict[i])[:,1], color=c)
+
+    c = next(color)
+    plt.scatter(np.array(centroids_two_dim)[:,0],np.array(centroids_two_dim[:,1]), color=c)
     plt.xlabel('1st Principal Component')
     plt.ylabel('2nd Principal Component')
     plt.savefig('sentence_clusters.png')
