@@ -93,6 +93,7 @@ def main():
     print(sentence_centroids)
 
     two_dim = PCA(random_state=0, n_components=2).fit_transform(sentence_embeddings_array)
+    centroids_two_dim = PCA(random_state=0, n_components=2).fit_transform(clustering.cluster_centers_)
 
 
     cluster1 = []
@@ -106,9 +107,10 @@ def main():
         else:
             cluster3.append(two_dim[i])
 
-    plt.scatter(np.array(cluster1)[:,0], np.array(cluster1)[:,1], c='r')
+    plt.scatter(np.array(cluster1)[:,0], np.array(cluster1)[:,1], c='c')
     plt.scatter(np.array(cluster2)[:,0], np.array(cluster2)[:,1], c='g')
     plt.scatter(np.array(cluster3)[:,0], np.array(cluster3)[:,1], c='b')
+    plt.scatter(np.array(centroids_two_dim)[:,0],np.array(centroids_two_dim[:,1]), c='r')
     plt.xlabel('1st Principal Component')
     plt.ylabel('2nd Principal Component')
     plt.savefig('sentence_clusters.png')
