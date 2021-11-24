@@ -3,3 +3,5 @@ example_converted_report.txt
 sift
 *.tar.gz
 *.png
+*.pdf
+*.json

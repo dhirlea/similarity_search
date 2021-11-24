@@ -69,7 +69,7 @@ def main():
     
     sentence_embeddings_array  = np.array(sentence_embeddings)
 
-    number_of_clusters = 2
+    number_of_clusters = 5
 
     clustering = KMeans(n_clusters=number_of_clusters, random_state=0).fit(sentence_embeddings_array)
 
